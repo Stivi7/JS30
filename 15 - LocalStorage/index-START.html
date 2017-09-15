@@ -23,13 +23,99 @@
       <input type="text" name="item" placeholder="Item Name" required>
       <input type="submit" value="+ Add Item">
     </form>
+    <div class="buttons"> 
+      <button id="checkall">Check All</button>
+      <button id="uncheck">Uncheck All</button>
+      <button id="clear">Clear</button>
+    </div>
   </div>
 
 <script>
   const addItems = document.querySelector('.add-items');
   const itemsList = document.querySelector('.plates');
-  const items = [];
+  var items = JSON.parse(localStorage.getItem('items')) || [];
+  //const buttons = document.querySelectorAll('.buttons');
+  const checkBtn = document.querySelector('#checkall');
+  const uncheckBtn = document.querySelector('#uncheck');
+  const clearBtn = document.querySelector('#clear');
 
+  function addItem(e) {
+    e.preventDefault();
+    const text = (this.querySelector('[name=item]')).value;
+    const item = {
+      text,
+      done: false
+    };
+    items.push(item);
+    populateList(items, itemsList);
+    localStorage.setItem('items', JSON.stringify(items));
+    this.reset(); //this. is the actual form element
+  }
+
+  function populateList(plates = [], platesList) {
+    platesList.innerHTML = plates.map((plate, i) => {
+      return `
+      <li>
+        <input type="checkbox" data-index=${i} id="item${i}" ${plate.done ? 'checked' : ''} />
+        <label for="item${i}">${plate.text}</label>
+      </li>
+      `;
+    }).join('');
+  }
+
+  function toggleDone(e) {
+    if (!e.target.matches('input')) return;
+    const el = e.target;
+    const index = el.dataset.index;
+    items[index].done = !items[index].done;
+    localStorage.setItem('items', JSON.stringify(items));
+    populateList(items, itemsList);
+  }
+
+  function checkAll(list) {
+    items.forEach(item => {
+      if(!item.done) {
+        item.done = true;
+        console.log(item.done);
+      }
+    });
+    
+   list.innerHTML = items.map((plate, i) => {
+      return `
+      <li>
+        <input type="checkbox" data-index=${i} id="item${i}" ${plate.done} = 'checked' />
+        <label for="item${i}">${plate.text}</label>
+      </li>
+      `;
+    }).join('');
+
+    
+    
+  }
+
+  function uncheckAll(e) {
+    console.log(e);
+  }
+
+  function clearAll() {
+    populateList(items = [], itemsList)
+    localStorage.clear();
+  }
+
+  addItems.addEventListener('submit', addItem);
+  itemsList.addEventListener('click', toggleDone);
+  checkBtn.addEventListener('click', checkAll(itemsList));
+  uncheckBtn.addEventListener('click', uncheckAll);
+  clearBtn.addEventListener('click', clearAll);
+  
+  
+
+  populateList(items, itemsList); 
+
+
+//create a check all button
+//create uncheck all button
+//create clear button
 </script>
 
 
